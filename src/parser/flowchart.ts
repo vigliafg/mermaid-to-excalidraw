@@ -1,5 +1,6 @@
 import {
   computeEdgePositions,
+  findElementBySuffix,
   getTransformAttr,
   toCssString,
 } from "../utils.js";
@@ -200,9 +201,7 @@ const parseSubGraph = (
   });
 
   // Get position
-  const el = containerEl.querySelector<SVGSVGElement>(
-    `[id=${toCssString(data.id)}]`
-  );
+  const el = findElementBySuffix<SVGSVGElement>(containerEl, data.id);
   if (!el) {
     throw new Error("SubGraph element not found");
   }

@@ -36,21 +36,23 @@ Il file `pnpm-workspace.yaml` contiene le autorizzazioni di build per
 ## Perché le versioni sono pinnate
 
 L'upstream usa `yarn.lock`; pnpm, partendo dal solo `package.json`, risolveva
-Mermaid `11.17.2` invece di `11.12.1`. I parser dipendono da classi DOM e DB
-interni di Mermaid, quindi il drift rompeva 46 test su 98 e faceva scattare il
-fallback immagine anche su flowchart, class ed ER.
+Mermaid `11.17.2` invece della versione attesa. I parser dipendono da classi DOM
+e DB interni di Mermaid, quindi il drift rompeva decine di test e faceva
+scattare il fallback immagine anche su flowchart, class ed ER.
 
 Per questo, nel fork:
 
-- `mermaid` è pinnato a `11.12.1`
+- `mermaid` è pinnato a `12.2.0`, la stessa versione usata dall'app
+  Mermaid Creator
 - `@excalidraw/excalidraw` è pinnato a `0.18.0-a9ca16e`
 - `@excalidraw/common` e `@excalidraw/element` sono dipendenze dirette, perché
   con il node_modules strict di pnpm gli import transitivi dell'harness non
   sarebbero risolvibili
 
 **Non aggiornare Mermaid senza aver prima aggiornato gli adapter e rieseguito
-l'harness.** L'app Mermaid Creator usa oggi Mermaid `12.2.0`: l'allineamento a
-Mermaid 12 è un passo esplicito del piano di integrazione.
+l'harness.** Il fork è già allineato a Mermaid `12.2.0`; gli ID DOM di Mermaid
+12 includono il prefisso del render e i parser usano `findElementBySuffix` per
+restare compatibili.
 
 ## Stato attuale
 

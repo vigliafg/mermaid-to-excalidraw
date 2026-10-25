@@ -443,19 +443,56 @@ const parsePath = (element: SVGPathElement): GenericNode[] => {
   const fill = fillOf(element);
   const stroke = strokeOf(element);
   if (!fill && !stroke) return [];
-  return parts.map((points) => ({
-    type: "path" as const,
-    points:
-      (closed || fill) && !samePoint(points[0], points[points.length - 1])
-        ? [...points, points[0]]
-        : points,
-    closed: closed || Boolean(fill),
-    fill,
-    stroke,
-    strokeWidth: strokeWidthOf(element) * rootScale(element),
-    strokeStyle: strokeStyleOf(element),
-    opacity: opacityOf(element),
-  }));
+  const strokeWidth = strokeWidthOf(element) * rootScale(element);
+  const strokeStyle = strokeStyleOf(element);
+  const opacity = opacityOf(element);
+
+  return parts.map((points) => {
+    // Axis-aligned rectangular paths are common in Mermaid (requirement,
+    // architecture, class boxes). A freedraw approximation would produce a
+    // fuzzy blob; use a native rectangle instead.
+    const xs = points.map((point) => point.x);
+    const ys = points.map((point) => point.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const axisAligned =
+      maxX - minX > 1 &&
+      maxY - minY > 1 &&
+      points.every(
+        (point) =>
+          (Math.abs(point.x - minX) < 0.5 || Math.abs(point.x - maxX) < 0.5) &&
+          (Math.abs(point.y - minY) < 0.5 || Math.abs(point.y - maxY) < 0.5),
+      );
+    if (axisAligned) {
+      return {
+        type: "rectangle" as const,
+        x: minX,
+        y: minY,
+        width: maxX - minX,
+        height: maxY - minY,
+        fill,
+        stroke,
+        strokeWidth,
+        strokeStyle,
+        opacity,
+      };
+    }
+    return {
+      type: "path" as const,
+      points:
+        (closed || fill) && !samePoint(points[0], points[points.length - 1])
+          ? [...points, points[0]]
+          : points,
+      closed: closed || Boolean(fill),
+      fill,
+      stroke,
+      strokeWidth,
+      strokeStyle,
+      opacity,
+    };
+  });
 };
 
 const parseImage = (element: SVGImageElement): GenericNode | null => {

@@ -14,6 +14,15 @@
 
 ## Unreleased
 
+### Fork 2026-10-25 (terzo passaggio)
+
+- Upgrade Mermaid from 11.12.1 to 12.2.0, the version used by Mermaid Creator.
+- Adapt state, class, ER, flowchart and sequence DOM lookups to Mermaid 12's
+  prefixed element ids; add `findElementBySuffix`.
+- Keep layer/relation parsing aligned with the Mermaid 12 DOM and update the
+  affected unit expectations.
+- Regenerate visual snapshots for Mermaid 12.
+
 ### Fork 2026-10-25 (secondo passaggio)
 
 - Add a generic SVG-to-Excalidraw adapter. All 22 support-matrix cases now

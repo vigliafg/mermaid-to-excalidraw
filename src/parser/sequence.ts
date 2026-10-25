@@ -563,7 +563,7 @@ const parseLoops = (messages: Message[], containerEl: Element) => {
   });
 
   const loopTextNodes = Array.from(
-    containerEl.querySelectorAll(".loopText")
+    containerEl.querySelectorAll(".loopText, .sectionTitle")
   ) as SVGTextElement[];
 
   const frameLabelTypes = new Set([

@@ -16,6 +16,20 @@ export const entityCodesToText = (input: string): string => {
   return element.value;
 };
 
+export const findElementBySuffix = <T extends Element = Element>(
+  container: ParentNode,
+  id: string
+): T | null => {
+  const direct = container.querySelector<T>(`[id=${toCssString(id)}]`);
+  if (direct) return direct;
+  const elements = Array.from(container.querySelectorAll<T>("[id]"));
+  return (
+    elements.find((element) => element.id.endsWith(`-${id}`)) ??
+    elements.find((element) => element.id.includes(`-${id}-`)) ??
+    null
+  );
+};
+
 export const getTransformAttr = (el: Element) => {
   const transformAttr = el.getAttribute("transform");
   const translateMatch = transformAttr?.match(

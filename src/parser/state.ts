@@ -7,6 +7,7 @@ import {
 } from "../interfaces.js";
 import {
   computeEdgePositions,
+  findElementBySuffix,
   getTransformAttr,
   toCssString,
 } from "../utils.js";
@@ -455,13 +456,14 @@ const createNodeElementResolver = (containerEl: Element) => {
   };
 
   return (node: MermaidStateNode): SVGGraphicsElement | null => {
-    const element = containerEl.querySelector<SVGGraphicsElement>(
-      [
-        ...(node.domId ? [`[id=${toCssString(node.domId)}]`] : []),
-        `[id=${toCssString(node.id)}]`,
-        `[data-id=${toCssString(node.id)}]`,
-      ].join(", ")
-    );
+    const element =
+      (node.domId
+        ? findElementBySuffix<SVGGraphicsElement>(containerEl, node.domId)
+        : null) ||
+      findElementBySuffix<SVGGraphicsElement>(containerEl, node.id) ||
+      containerEl.querySelector<SVGGraphicsElement>(
+        `[data-id=${toCssString(node.id)}]`
+      );
     if (element) {
       return markAndReturn(element);
     }
@@ -617,9 +619,7 @@ const parseStateEdge = (
   edge: MermaidStateEdge,
   containerEl: Element
 ): StateEdge | null => {
-  const edgeEl = containerEl.querySelector<SVGPathElement>(
-    `path[id=${toCssString(edge.id)}]`
-  );
+  const edgeEl = findElementBySuffix<SVGPathElement>(containerEl, edge.id);
   if (!edgeEl) {
     return null;
   }

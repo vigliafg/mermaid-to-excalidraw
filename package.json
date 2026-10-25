@@ -30,7 +30,7 @@
   "dependencies": {
     "@excalidraw/markdown-to-text": "0.1.2",
     "@mermaid-js/parser": "^0.6.3",
-    "mermaid": "11.12.1",
+    "mermaid": "12.2.0",
     "nanoid": "4.0.2"
   },
   "devDependencies": {

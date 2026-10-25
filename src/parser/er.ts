@@ -11,6 +11,7 @@ import {
   createTextSkeleton,
 } from "../elementSkeleton.js";
 import {
+  findElementBySuffix,
   getDecodedEdgePoints,
   getPathCoordinates,
   getTransformAttr,
@@ -243,10 +244,8 @@ const getRelationshipPaths = (
   edge: ERLayoutEdge,
   containerEl: Element
 ): SVGPathElement[] => {
-  const directPath = containerEl.querySelector<SVGPathElement>(
-    `path[id="${edge.id}"][data-edge="true"]`
-  );
-  if (directPath) {
+  const directPath = findElementBySuffix<SVGPathElement>(containerEl, edge.id);
+  if (directPath && directPath.getAttribute("data-edge") === "true") {
     return [directPath];
   }
 
@@ -261,11 +260,7 @@ const getRelationshipPaths = (
   ];
 
   return cyclicPathIds
-    .map((pathId) =>
-      containerEl.querySelector<SVGPathElement>(
-        `path[id="${pathId}"][data-edge="true"]`
-      )
-    )
+    .map((pathId) => findElementBySuffix<SVGPathElement>(containerEl, pathId))
     .filter((path): path is SVGPathElement => path !== null);
 };
 
@@ -294,7 +289,7 @@ const parseEntity = (
   entity: EntityNode,
   containerEl: Element
 ): { container: Container; lines: Line[]; text: Text[] } => {
-  const domNode = containerEl.querySelector<SVGGElement>(`[id="${entity.id}"]`);
+  const domNode = findElementBySuffix<SVGGElement>(containerEl, entity.id);
   if (!domNode) {
     throw new Error(`ER entity ${entity.id} not found in rendered SVG`);
   }

@@ -2,6 +2,7 @@ import { nanoid } from "nanoid";
 
 import {
   dedupeConsecutivePoints,
+  findElementBySuffix,
   getDecodedEdgePoints,
   getPathCoordinates,
   getTransformAttr,
@@ -535,6 +536,7 @@ const parseClasses = (
         containerEl.querySelector<SVGGElement>(`#${lookedUpId}`)) ||
       containerEl.querySelector<SVGGElement>(`#${domId}`) ||
       containerEl.querySelector<SVGGElement>(`[data-id='${classId}']`) ||
+      findElementBySuffix<SVGGElement>(containerEl, classId) ||
       findByPrefix(classId);
 
     if (!domNode) {
@@ -824,7 +826,7 @@ const parseRelations = (
 ) => {
   const relationEdges = Array.from(
     containerEl.querySelectorAll<SVGPathElement>(
-      '.edgePaths path[data-edge="true"]:not([id^="edgeNote"]):not([id*="-cyclic-special-"])'
+      '.edgePaths path[data-edge="true"]:not([id*="edgeNote"]):not([id*="-cyclic-special-"])'
     )
   );
 
@@ -856,7 +858,14 @@ const parseRelations = (
     let arrow: Arrow;
 
     if (id1 === id2) {
-      const edgePaths = getSelfRelationEdgePaths(id1, containerEl);
+      let edgePaths = getSelfRelationEdgePaths(id1, containerEl);
+      if (!edgePaths.length) {
+        const fallback = relationEdges[relationEdgeIndex];
+        if (fallback) {
+          edgePaths = [fallback];
+          relationEdgeIndex += 1;
+        }
+      }
       if (!edgePaths.length) {
         throw new Error(
           `parseRelations: Cannot find rendered SVG edge for relation ${id1} -> ${id2}`
@@ -1032,7 +1041,7 @@ const parseNotes = (
   const connectors: Arrow[] = [];
   notes.forEach((note, index) => {
     const { id, text, class: classId } = note;
-    const node = containerEl.querySelector<SVGSVGElement>(`#${id}`);
+    const node = findElementBySuffix<SVGSVGElement>(containerEl, id);
     if (!node) {
       throw new Error(`Node with id ${id} not found!`);
     }
@@ -1054,8 +1063,9 @@ const parseNotes = (
         throw new Error(`class node with id ${classId} not found!`);
       }
 
-      const edgePath = containerEl.querySelector<SVGPathElement>(
-        `path[id="edgeNote${index + 1}"][data-edge="true"]`
+      const edgePath = findElementBySuffix<SVGPathElement>(
+        containerEl,
+        `edgeNote${index + 1}`
       );
 
       if (edgePath) {
