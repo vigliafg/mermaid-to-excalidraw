@@ -13,6 +13,8 @@ import { State } from "./parser/state.js";
 import { stateToExcalidrawSkeletonConvertor } from "./converter/types/state.js";
 import { Timeline } from "./parser/timeline.js";
 import { timelineToExcalidrawSkeletonConvertor } from "./converter/types/timeline.js";
+import { type Generic } from "./parser/genericTypes.js";
+import { genericToExcalidrawSkeletonConvertor } from "./converter/types/generic.js";
 import type { LocalPoint } from "@excalidraw/excalidraw/math/types";
 import { dedupeConsecutivePoints } from "./utils.js";
 
@@ -22,7 +24,11 @@ const normalizeLinearElementPoints = (
   return {
     ...result,
     elements: result.elements.map((element) => {
-      if (!("points" in element) || !Array.isArray(element.points)) {
+      if (
+        element.type === "freedraw" ||
+        !("points" in element) ||
+        !Array.isArray(element.points)
+      ) {
         return element;
       }
 
@@ -45,7 +51,15 @@ const normalizeLinearElementPoints = (
 };
 
 export const graphToExcalidraw = (
-  graph: Flowchart | GraphImage | Sequence | Class | ERD | State | Timeline,
+  graph:
+    | Flowchart
+    | GraphImage
+    | Sequence
+    | Class
+    | ERD
+    | State
+    | Timeline
+    | Generic,
   options: ExcalidrawConfig = {}
 ): MermaidToExcalidrawResult => {
   const result = (() => {
@@ -76,6 +90,10 @@ export const graphToExcalidraw = (
 
       case "timeline": {
         return timelineToExcalidrawSkeletonConvertor.convert(graph, options);
+      }
+
+      case "generic": {
+        return genericToExcalidrawSkeletonConvertor.convert(graph, options);
       }
 
       default: {

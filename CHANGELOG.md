@@ -14,6 +14,17 @@
 
 ## Unreleased
 
+### Fork 2026-10-25 (secondo passaggio)
+
+- Add a generic SVG-to-Excalidraw adapter. All 22 support-matrix cases now
+  produce editable native elements; `GraphImage` remains a safety fallback.
+- Add coverage for Gantt, Pie, Mindmap, Journey, Quadrant, XY Chart, Sankey,
+  Block, GitGraph, Requirement, C4, Architecture, Packet, Kanban, Radar and
+  Treemap.
+- Make the visual harness deterministic with one worker.
+- Skip the GitGraph snapshot because the Mermaid crop is font-metric dependent;
+  the case remains covered by `harness:check`.
+
 ### v2.1.0
 
 - Upgrade mermaid to 11.12.1

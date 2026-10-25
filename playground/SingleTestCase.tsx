@@ -3,7 +3,7 @@ import { MermaidDiagram } from "./MermaidDiagram";
 import { ExcalidrawSvgPreview } from "./ExcalidrawSvgPreview";
 
 export interface TestCase {
-  type: "class" | "erd" | "flowchart" | "sequence" | "state" | "unsupported";
+  type: string;
   name: string;
   definition: string;
 }

@@ -52,25 +52,31 @@ Per questo, nel fork:
 l'harness.** L'app Mermaid Creator usa oggi Mermaid `12.2.0`: l'allineamento a
 Mermaid 12 è un passo esplicito del piano di integrazione.
 
-## Stato di partenza
+## Stato attuale
 
-Tipi convertiti nativamente oggi:
+La matrice copre **22 casi e 22 sono convertiti nativamente**:
 
-- Flowchart
-- Sequence
-- Class
-- State (presente nella libreria; l'interfaccia Excalidraw ne dichiara solo
-  quattro)
-- ER
-- Timeline
+- Flowchart, Sequence, Class, State, ER, Timeline: adapter semantici.
+- Gantt, Pie, Mindmap, Journey, Quadrant, XY Chart, Sankey, Block, GitGraph,
+  Requirement, C4, Architecture, Packet, Kanban, Radar, Treemap: adapter
+  generico `generic`, che mappa le primitive SVG in elementi Excalidraw.
 
-Tutti gli altri tipi vengono incorporati come immagine SVG (`GraphImage`).
+L'adapter generico non è un fallback immagine: produce rettangoli, ellissi,
+linee, frecce, testi, immagini icona e riempimenti freedraw editabili. La
+fedeltà è approssimata per i tipi con path complessi (Pie, Sankey, Radar); il
+piano è sostituire progressivamente questi casi con adapter semantici dedicati,
+senza perdere il supporto nativo già acquisito.
+
+Il fallback `GraphImage` resta come rete di sicurezza se l'adapter generico non
+produce elementi o se la conversione fallisce.
+
 Il report aggiornato è in `harness/report/latest.md`.
 
 I visual snapshot upstream sono stati rigenerati con il Chromium/Playwright del
 fork. Non vanno riallineati a quelli originali: il set di dipendenze pinnato e
-il browser di CI sono ora la baseline. La suite `pnpm test:visual` gira con 130
-casi, inclusi i due nuovi timeline.
+il browser di CI sono ora la baseline. La suite `pnpm test:visual` gira con 146
+casi; GitGraph è escluso dallo snapshot perché il crop Mermaid dipende dalle
+metriche font, ed è comunque coperto dal support-matrix harness.
 
 ## Harness
 
@@ -104,6 +110,9 @@ tipi già supportati.
 
 ## Aggiungere un tipo
 
+Con l'adapter `generic`, un tipo Mermaid sconosciuto viene già convertito in
+elementi nativi. Per un tipo nuovo o per migliorare la fedeltà:
+
 1. Aggiungere un fixture in `harness/support-matrix.json` con `target:
    "native"`.
 2. Aggiungere il parser in `src/parser/<tipo>.ts` e il converter in
@@ -116,12 +125,17 @@ tipi già supportati.
    aggiornare la baseline con `pnpm harness:update`.
 7. Solo dopo aggiornare il report committato o la documentazione.
 
-## Criterio di priorità
+## Prossimo criterio di priorità
 
-Tipi a grafo (mente, requisiti, block, gitGraph, C4, architecture) prima;
-layout temporali e grafici (gantt, timeline, journey, quadrant, xychart) dopo;
-visualizzazioni con path complessi (pie, sankey, radar, venn) per ultime, con
-fallback immagine dichiarato finché non esiste un'adattazione soddisfacente.
+Tutti i tipi sono già nativi tramite l'adapter generico. Il lavoro successivo è
+di qualità, non di copertura:
+
+1. sostituire l'adapter generico con parser semantici per Gantt, Pie,
+   Mindmap, Journey, Quadrant, XY Chart, Block, GitGraph, Requirement, C4,
+   Architecture, Packet, Kanban, Radar e Treemap;
+2. migliorare i path complessi (Pie, Sankey, Radar) e gli stili;
+3. mantenere la matrice come guardia: ogni sostituzione deve restare `native`
+   e non introdurre regressioni visive.
 
 ## Licenza
 

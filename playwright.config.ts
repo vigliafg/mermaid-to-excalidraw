@@ -8,7 +8,8 @@ const BASE_URL = `http://localhost:${PORT}`;
 
 export default defineConfig({
   testDir: "./visual-tests",
-  fullyParallel: true,
+  fullyParallel: false,
+  workers: 1,
   forbidOnly: !!process.env.CI,
   retries: 0,
   reporter: "html",

@@ -18,6 +18,8 @@ import {
   parseMermaidTimelineDiagram,
   type TimelineDb,
 } from "./parser/timeline.js";
+import { type Generic } from "./parser/genericTypes.js";
+import { parseMermaidGenericDiagram } from "./parser/generic.js";
 import { runMermaidTaskSequentially } from "./mermaidExecutionQueue.js";
 import {
   withLineBreakFallback,
@@ -94,7 +96,9 @@ export const resolveMermaidConfig = (
 export const parseMermaid = async (
   definition: string,
   config: MermaidConfig = MERMAID_CONFIG
-): Promise<Flowchart | GraphImage | Sequence | Class | ERD | State | Timeline> => {
+): Promise<
+  Flowchart | GraphImage | Sequence | Class | ERD | State | Timeline | Generic
+> => {
   return runMermaidTaskSequentially(async () => {
     // Only re-initialize mermaid if config has changed (performance optimization)
     const mergedConfig = resolveMermaidConfig(config);
@@ -145,7 +149,15 @@ export const parseMermaid = async (
       // Append SVG to DOM temporarily to allow querying element dimensions/positions
       svgContainer.innerHTML = svg;
 
-      let data: Flowchart | GraphImage | Sequence | Class | ERD | State | Timeline;
+      let data:
+        | Flowchart
+        | GraphImage
+        | Sequence
+        | Class
+        | ERD
+        | State
+        | Timeline
+        | Generic;
 
       try {
         switch (diagram.type) {
@@ -186,7 +198,10 @@ export const parseMermaid = async (
             break;
           }
           default: {
-            data = convertSvgToGraphImage(svgContainer);
+            const generic = parseMermaidGenericDiagram(svgContainer);
+            data = generic.nodes.length
+              ? generic
+              : convertSvgToGraphImage(svgContainer);
           }
         }
       } catch (error) {

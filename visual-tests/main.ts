@@ -25,6 +25,7 @@ import { STATE_DIAGRAM_TESTCASES } from "../playground/testcases/state";
 import { UNSUPPORTED_DIAGRAM_TESTCASES } from "../playground/testcases/unsupported";
 import { LINE_BREAK_TESTCASES } from "../playground/testcases/lineBreaks";
 import { TIMELINE_DIAGRAM_TESTCASES } from "../playground/testcases/timeline";
+import { GENERIC_DIAGRAM_TESTCASES } from "../playground/testcases/generic";
 import { ensureExcalidrawFontsLoaded } from "../playground/loadExcalidrawFonts";
 
 interface TestCase {
@@ -42,6 +43,7 @@ const ALL_TESTCASES: TestCase[] = [
   ...UNSUPPORTED_DIAGRAM_TESTCASES,
   ...LINE_BREAK_TESTCASES,
   ...TIMELINE_DIAGRAM_TESTCASES,
+  ...GENERIC_DIAGRAM_TESTCASES,
 ];
 
 // Apply Playwright-mode layout before the harness reports ready, so the first
