@@ -33,3 +33,6 @@ CLAUDE.md
 playwright-report
 test-results
 visual-tests/public
+
+# fork harness output
+/harness/report

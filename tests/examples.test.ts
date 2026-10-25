@@ -9,6 +9,7 @@ import { SEQUENCE_DIAGRAM_TESTCASES } from "../playground/testcases/sequence.ts"
 import { STATE_DIAGRAM_TESTCASES } from "../playground/testcases/state.ts";
 import { UNSUPPORTED_DIAGRAM_TESTCASES } from "../playground/testcases/unsupported.ts";
 import { LINE_BREAK_TESTCASES } from "../playground/testcases/lineBreaks.ts";
+import { TIMELINE_DIAGRAM_TESTCASES } from "../playground/testcases/timeline.ts";
 
 const PLAYGROUND_TESTCASES = [
   ...FLOWCHART_DIAGRAM_TESTCASES,
@@ -18,6 +19,7 @@ const PLAYGROUND_TESTCASES = [
   ...STATE_DIAGRAM_TESTCASES,
   ...UNSUPPORTED_DIAGRAM_TESTCASES,
   ...LINE_BREAK_TESTCASES,
+  ...TIMELINE_DIAGRAM_TESTCASES,
 ];
 
 type BBox = {

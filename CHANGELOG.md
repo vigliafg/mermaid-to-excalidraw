@@ -1,3 +1,17 @@
+## Fork
+
+### 2026-10-25
+
+- Add native Timeline conversion (tasks, events, sections, axis, title).
+- Add the `harness/` support matrix with JSON/Markdown reports, regression
+  baselines and a strict target mode.
+- Pin Mermaid to 11.12.1 and `@excalidraw/excalidraw` to `0.18.0-a9ca16e` so
+  the DOM parsers and visual harness are reproducible with pnpm.
+- Add `@excalidraw/common` and `@excalidraw/element` as direct dev
+  dependencies for pnpm.
+- Regenerate the visual snapshots with the fork's Chromium/Playwright setup and
+  add two Timeline cases.
+
 ## Unreleased
 
 ### v2.1.0

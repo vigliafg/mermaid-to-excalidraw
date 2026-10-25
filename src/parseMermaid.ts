@@ -13,6 +13,11 @@ import { Sequence, parseMermaidSequenceDiagram } from "./parser/sequence.js";
 import { Class, parseMermaidClassDiagram } from "./parser/class.js";
 import { ERD, parseMermaidERDiagram } from "./parser/er.js";
 import { State, parseMermaidStateDiagram } from "./parser/state.js";
+import {
+  Timeline,
+  parseMermaidTimelineDiagram,
+  type TimelineDb,
+} from "./parser/timeline.js";
 import { runMermaidTaskSequentially } from "./mermaidExecutionQueue.js";
 import {
   withLineBreakFallback,
@@ -70,7 +75,7 @@ const convertSvgToGraphImage = (svgContainer: HTMLDivElement) => {
  */
 export const resolveMermaidConfig = (
   config: MermaidConfig = MERMAID_CONFIG
-) => {
+): MermaidConfig => {
   const resolvedFontSize =
     config.themeVariables?.fontSize ?? MERMAID_CONFIG.themeVariables.fontSize;
 
@@ -89,7 +94,7 @@ export const resolveMermaidConfig = (
 export const parseMermaid = async (
   definition: string,
   config: MermaidConfig = MERMAID_CONFIG
-): Promise<Flowchart | GraphImage | Sequence | Class | ERD | State> => {
+): Promise<Flowchart | GraphImage | Sequence | Class | ERD | State | Timeline> => {
   return runMermaidTaskSequentially(async () => {
     // Only re-initialize mermaid if config has changed (performance optimization)
     const mergedConfig = resolveMermaidConfig(config);
@@ -140,7 +145,7 @@ export const parseMermaid = async (
       // Append SVG to DOM temporarily to allow querying element dimensions/positions
       svgContainer.innerHTML = svg;
 
-      let data: Flowchart | GraphImage | Sequence | Class | ERD | State;
+      let data: Flowchart | GraphImage | Sequence | Class | ERD | State | Timeline;
 
       try {
         switch (diagram.type) {
@@ -169,6 +174,13 @@ export const parseMermaid = async (
           case "stateDiagram": {
             data = parseMermaidStateDiagram(
               diagram.db as StateDB,
+              svgContainer
+            );
+            break;
+          }
+          case "timeline": {
+            data = parseMermaidTimelineDiagram(
+              diagram.db as TimelineDb,
               svgContainer
             );
             break;

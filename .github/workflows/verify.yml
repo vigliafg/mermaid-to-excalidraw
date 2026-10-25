@@ -1,0 +1,44 @@
+name: Verify
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 12
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Install Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Unit tests
+        run: pnpm test
+
+      - name: Visual tests
+        run: pnpm test:visual
+
+      - name: Support matrix
+        run: pnpm harness:check
+
+      - name: Upload support report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: support-matrix
+          path: harness/report/

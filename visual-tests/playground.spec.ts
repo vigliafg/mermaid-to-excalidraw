@@ -6,6 +6,7 @@ import { ERD_DIAGRAM_TESTCASES } from "../playground/testcases/er";
 import { STATE_DIAGRAM_TESTCASES } from "../playground/testcases/state";
 import { UNSUPPORTED_DIAGRAM_TESTCASES } from "../playground/testcases/unsupported";
 import { LINE_BREAK_TESTCASES } from "../playground/testcases/lineBreaks";
+import { TIMELINE_DIAGRAM_TESTCASES } from "../playground/testcases/timeline";
 
 const ALL_TESTCASES = [
   ...FLOWCHART_DIAGRAM_TESTCASES.map((tc) => ({
@@ -23,6 +24,10 @@ const ALL_TESTCASES = [
   ...LINE_BREAK_TESTCASES.map((tc) => ({
     ...tc,
     chartType: "line-breaks",
+  })),
+  ...TIMELINE_DIAGRAM_TESTCASES.map((tc) => ({
+    ...tc,
+    chartType: "timeline",
   })),
 ];
 

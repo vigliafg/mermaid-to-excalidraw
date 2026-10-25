@@ -24,6 +24,7 @@ import { ERD_DIAGRAM_TESTCASES } from "../playground/testcases/er";
 import { STATE_DIAGRAM_TESTCASES } from "../playground/testcases/state";
 import { UNSUPPORTED_DIAGRAM_TESTCASES } from "../playground/testcases/unsupported";
 import { LINE_BREAK_TESTCASES } from "../playground/testcases/lineBreaks";
+import { TIMELINE_DIAGRAM_TESTCASES } from "../playground/testcases/timeline";
 import { ensureExcalidrawFontsLoaded } from "../playground/loadExcalidrawFonts";
 
 interface TestCase {
@@ -40,6 +41,7 @@ const ALL_TESTCASES: TestCase[] = [
   ...STATE_DIAGRAM_TESTCASES,
   ...UNSUPPORTED_DIAGRAM_TESTCASES,
   ...LINE_BREAK_TESTCASES,
+  ...TIMELINE_DIAGRAM_TESTCASES,
 ];
 
 // Apply Playwright-mode layout before the harness reports ready, so the first
@@ -529,10 +531,99 @@ function hideAllView(): void {
   document.getElementById("error")!.style.display = "";
 }
 
+type SupportMatrixCase = {
+  id: string;
+  definition: string;
+};
+
+type SupportMatrixResult = {
+  id: string;
+  ok: boolean;
+  status: "native" | "image" | "error";
+  graphType?: string;
+  elementCount?: number;
+  imageCount?: number;
+  fileCount?: number;
+  elementTypes?: Record<string, number>;
+  durationMs: number;
+  error?: string;
+};
+
+const countElementTypes = (
+  elements: ReadonlyArray<{ type?: string }>
+): Record<string, number> => {
+  const counts: Record<string, number> = {};
+  for (const element of elements) {
+    const type = element.type ?? "unknown";
+    counts[type] = (counts[type] ?? 0) + 1;
+  }
+  return counts;
+};
+
+/**
+ * Analyze a Mermaid definition without touching the visual harness panels.
+ * Used by scripts/support-matrix.mjs to track native support over time.
+ */
+async function analyzeDefinition(
+  definition: string
+): Promise<Omit<SupportMatrixResult, "id">> {
+  const started = performance.now();
+  try {
+    const parsed = await parseMermaid(definition, HARNESS_MERMAID_CONFIG);
+    const { elements, files } = graphToExcalidraw(parsed, {
+      fontSize: DEFAULT_FONT_SIZE,
+    });
+    await ensureExcalidrawFontsLoaded();
+    await loadExcalifontGlyphs(elements);
+    clearExcalidrawTextMeasureCache(elements);
+    const excalidrawElements = convertToExcalidrawElements(elements);
+    const elementTypes = countElementTypes(excalidrawElements);
+    return {
+      ok: true,
+      status: parsed.type === "graphImage" ? "image" : "native",
+      graphType: parsed.type,
+      elementCount: excalidrawElements.length,
+      imageCount: elementTypes.image ?? 0,
+      fileCount: files ? Object.keys(files).length : 0,
+      elementTypes,
+      durationMs: Math.round(performance.now() - started),
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      status: "error",
+      durationMs: Math.round(performance.now() - started),
+      error: String(error),
+    };
+  }
+}
+
+async function analyzeDefinitions(
+  cases: SupportMatrixCase[]
+): Promise<SupportMatrixResult[]> {
+  const results: SupportMatrixResult[] = [];
+  for (const item of cases) {
+    results.push({ id: item.id, ...(await analyzeDefinition(item.definition)) });
+  }
+  return results;
+}
+
+/**
+ * Developer helper: render a Mermaid definition and return the SVG string.
+ * Used by scripts/inspect-mermaid.mjs when writing a new parser adapter.
+ */
+async function renderMermaidDefinitionSvg(definition: string): Promise<string> {
+  const renderId = `inspect-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const { svg } = await mermaid.render(renderId, definition);
+  return svg;
+}
+
 // Expose to Playwright
 (window as any).renderTestCase = renderTestCase;
 (window as any).renderAllTestCases = renderAllTestCases;
 (window as any).hideAllView = hideAllView;
+(window as any).analyzeDefinitions = analyzeDefinitions;
+(window as any).renderMermaidSvg = renderMermaidDefinitionSvg;
 (window as any).TEST_CASE_COUNT = ALL_TESTCASES.length;
 (window as any).ALL_TESTCASES = ALL_TESTCASES;
 
