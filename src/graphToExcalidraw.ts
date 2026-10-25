@@ -1,7 +1,13 @@
 import { ExcalidrawConfig } from "./index.js";
 import { FlowchartToExcalidrawSkeletonConverter } from "./converter/types/flowchart.js";
 import { GraphImageConverter } from "./converter/types/graphImage.js";
-import { GraphImage, MermaidToExcalidrawResult } from "./interfaces.js";
+import {
+  GraphImage,
+  MermaidConversionPayload,
+  MermaidConversionQuality,
+  MermaidDiagramKind,
+  MermaidToExcalidrawResult,
+} from "./interfaces.js";
 import { SequenceToExcalidrawSkeletonConvertor } from "./converter/types/sequence.js";
 import { Sequence } from "./parser/sequence.js";
 import { Flowchart } from "./parser/flowchart.js";
@@ -19,8 +25,8 @@ import type { LocalPoint } from "@excalidraw/excalidraw/math/types";
 import { dedupeConsecutivePoints } from "./utils.js";
 
 const normalizeLinearElementPoints = (
-  result: MermaidToExcalidrawResult
-): MermaidToExcalidrawResult => {
+  result: MermaidConversionPayload
+): MermaidConversionPayload => {
   return {
     ...result,
     elements: result.elements.map((element) => {
@@ -106,5 +112,17 @@ export const graphToExcalidraw = (
     }
   })();
 
-  return normalizeLinearElementPoints(result);
+  return {
+    ...normalizeLinearElementPoints(result),
+    type: graph.type,
+    quality: qualityFor(graph.type),
+  };
+};
+
+const qualityFor = (
+  type: MermaidDiagramKind
+): MermaidConversionQuality => {
+  if (type === "graphImage") return "image";
+  if (type === "generic") return "generic";
+  return "semantic";
 };

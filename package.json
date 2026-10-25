@@ -1,6 +1,6 @@
 {
   "name": "@excalidraw/mermaid-to-excalidraw",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "description": "Mermaid to Excalidraw Diagrams",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -67,5 +67,8 @@
     "@babel/preset-env": "7.13.8"
   },
   "keywords": [],
-  "license": "MIT"
+  "license": "MIT",
+  "peerDependencies": {
+    "@excalidraw/excalidraw": "0.18.0-a9ca16e"
+  }
 }
